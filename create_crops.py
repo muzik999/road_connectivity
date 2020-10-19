@@ -81,9 +81,11 @@ def CreatCrops(base_dir, crop_type, size, stride, image_suffix, gt_suffix):
             continue
 
         H,W,C = image.shape
-        maxx = (H-size)/stride
-        maxy = (W-size)/stride
+        maxx = int((H-size)/stride)
+        maxy = int((W-size)/stride)
         
+        # import pdb; pdb.set_trace()
+
         for x in range(maxx+1):
             for y in range(maxy+1):
                 im_ = image[x*stride:x*stride + size,y*stride:y*stride + size,:]
