@@ -216,8 +216,12 @@ def train(epoch):
             loss1 = road_loss(outputs, util.to_variable(labels[-1]), False)
             loss2 = angle_loss(pred_vecmaps, util.to_variable(vecmap_angles[-1]))
 
-        train_loss_iou += loss1.data[0]
-        train_loss_vec += loss2.data[0]
+        # import pdb; pdb.set_trace()
+
+        print(loss1)
+
+        train_loss_iou += loss1.item()
+        train_loss_vec += loss2.item()
 
         _, predicted = torch.max(outputs.data, 1)
 
@@ -331,8 +335,8 @@ def test(epoch):
             loss1 = road_loss(outputs, util.to_variable(labels[0], True, False), True)
             loss2 = angle_loss(pred_vecmaps, util.to_variable(labels[0], True, False))
 
-        test_loss_iou += loss1.data[0]
-        test_loss_vec += loss2.data[0]
+        test_loss_iou += loss1.item()
+        test_loss_vec += loss2.item()
 
         _, predicted = torch.max(outputs.data, 1)
 
