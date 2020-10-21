@@ -51,7 +51,7 @@ def getParllelNetworkStateDict(state_dict):
 
 
 def to_variable(tensor, volatile=False, requires_grad=True):
-    return Variable(tensor.long().cuda(), requires_grad=requires_grad)
+    return Variable(tensor.long().cuda())#, requires_grad=requires_grad)
 
 
 def weights_init(model, manual_seed=7):
