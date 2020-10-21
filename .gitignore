@@ -6,10 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
-# macOS Files
+# Anmol macOS Files
 .DS_Store
 
-# Images
+# Anmol folder
+save/
+
+# Anmol Images
 *.tif
 *.out
 *.tiff
