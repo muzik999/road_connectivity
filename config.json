@@ -9,15 +9,15 @@
     "refinement":3,
     "train_dataset": {
         "spacenet":{
-            "dir": "/data/spacenet/train_crops/",
-            "file": "/data/spacenet/train_crops.txt",
+            "dir": "./data/spacenet/train_crops/",
+            "file": "./data/spacenet/train_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
             "crop_size": 256
         },
         "deepglobe":{
-            "dir": "/data/deepglobe/train_crops/",
-            "file": "/data/deepglobe/train_crops.txt",
+            "dir": "./data/deepglobe/train_crops/",
+            "file": "./data/deepglobe/train_crops.txt",
             "image_suffix": ".jpg",
             "gt_suffix": ".png",
             "crop_size": 256
@@ -25,7 +25,7 @@
         "crop_size": 256,
         "augmentation": true,
         "mean" : "[70.95016901, 71.16398124, 71.30953645]",
-        "std" : "[ 34.00087859, 35.18201658, 36.40463264]",
+        "std" : "[34.00087859, 35.18201658, 36.40463264]",
         "normalize_type": "Mean",
         "thresh": 0.76,
         "angle_theta": 10,
@@ -33,15 +33,15 @@
     },
     "val_dataset": {
         "spacenet":{
-            "dir": "/data/spacenet/val_crops/",
-            "file": "/data/spacenet/val_crops.txt",
+            "dir": "./data/spacenet/val_crops/",
+            "file": "./data/spacenet/val_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
             "crop_size": 650
         },
         "deepglobe":{
-            "dir": "/data/deepglobe/val_crops/",
-            "file": "/data/deepglobe/val_crops.txt",
+            "dir": "./data/deepglobe/val_crops/",
+            "file": "./data/deepglobe/val_crops.txt",
             "image_suffix": ".jpg",
             "gt_suffix": ".png",
             "crop_size": 512
@@ -49,7 +49,7 @@
         "crop_size": 512,
         "augmentation": false,
         "mean" : "[70.95016901, 71.16398124, 71.30953645]",
-        "std" : "[ 34.00087859, 35.18201658, 36.40463264]",
+        "std" : "[34.00087859, 35.18201658, 36.40463264]",
         "normalize_type": "Mean",
         "thresh": 0.76,
         "angle_theta": 10,
@@ -62,8 +62,8 @@
         "lr_drop_epoch": "[60,90,110]"
     },
     "trainer": {
-        "total_epochs": 120,
-        "save_dir": "/ssd_scratch/cvit/anil.k/exp/deepglobe100/",
+        "total_epochs": 0,
+        "save_dir": "./save/",
         "iter_size": 1,
         "test_freq": 1
     }
