@@ -77,15 +77,15 @@ util.ensure_dir(experiment_dir)
 train_file = "{}/{}_train_loss.txt".format(experiment_dir, args.dataset)
 test_file = "{}/{}_test_loss.txt".format(experiment_dir, args.dataset)
 
-train_loss_file = open(train_file, "w", 0)
-val_loss_file = open(test_file, "w", 0)
+train_loss_file = open(train_file, "w")#, 0)
+val_loss_file = open(test_file, "w")#, 0)
 
 ### Angle Metrics
 train_file_angle = "{}/{}_train_angle_loss.txt".format(experiment_dir, args.dataset)
 test_file_angle = "{}/{}_test_angle_loss.txt".format(experiment_dir, args.dataset)
 
-train_loss_angle_file = open(train_file_angle, "w", 0)
-val_loss_angle_file = open(test_file_angle, "w", 0)
+train_loss_angle_file = open(train_file_angle, "w")#, 0)
+val_loss_angle_file = open(test_file_angle, "w")#, 0)
 ################################################################################
 num_gpus = torch.cuda.device_count()
 
