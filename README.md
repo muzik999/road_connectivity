@@ -5,7 +5,8 @@
 <img src='https://github.com/anilbatra2185/road_connectivity/blob/master/assests/images/overview.png' width="800">
 
 ## Requirements
-* [PyTorch](https://pytorch.org/) (version = 0.3.0)
+* [PyTorch](https://pytorch.org/) (version = 1.6.0) working, (version = 0.3.0) original
+* Torchvision (version = 0.7.0) working
 * [sknw](https://github.com/yxdragon/sknw)
 * [networkx](https://networkx.github.io/) (version = 2.4)
 * json
@@ -135,11 +136,11 @@ __Sample Usage__
 
 * Training with StackModule
 ```
-CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset deepglobe --model_name "StackHourglassNetMTL" --exp dg_stak_mtl
+CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset spacenet --model_name "StackHourglassNetMTL" --exp dg_stak_mtl
 ```
 * Training with LinkNet34
 ```
-CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset deepglobe --model_name "LinkNet34MTL" --exp dg_L34_mtl --multi_scale_pred false
+CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset spacenet --model_name "LinkNet34MTL" --exp dg_L34_mtl --multi_scale_pred false
 ```
 
 ## Evaluate APLS
@@ -155,18 +156,3 @@ CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset deep
 CUDA_VISIBLE_DEVICES=0,1 python train_refine_pre.py --config config.json --dataset spacenet --model_name "LinkNet34" --exp spacenet_L34_pre_train_with_corruption --multi_scale_pred false
 ```
 
-## Citation
-If you find our work useful in your research, please cite:
-
-    @InProceedings{Batra_2019_CVPR,
-		author = {Batra, Anil and Singh, Suriya and Pang, Guan and Basu, Saikat and Jawahar, C.V. and Paluri, Manohar},
-		title = {Improved Road Connectivity by Joint Learning of Orientation and Segmentation},
-		booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-		month = {June},
-		year = {2019}
-	}
-
-## Remaining Tasks
-- [x] Dataset for Connectivity Refinement
-- [ ] Training file for Road connectivity refinement
-- [ ] Dataset for Junction Learning
