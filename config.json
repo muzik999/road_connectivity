@@ -16,9 +16,9 @@
             "crop_size": 256
         },
         "deepglobe":{
-            "dir": "./data/deepglobe/train_crops/",
-            "file": "./data/deepglobe/train_crops.txt",
-            "image_suffix": ".jpg",
+            "dir": "./data/spacenet/train_crops/",
+            "file": "./data/spacenet/train_crops.txt",
+            "image_suffix": ".png",
             "gt_suffix": ".png",
             "crop_size": 256
         },
@@ -40,11 +40,11 @@
             "crop_size": 650
         },
         "deepglobe":{
-            "dir": "./data/deepglobe/val_crops/",
-            "file": "./data/deepglobe/val_crops.txt",
-            "image_suffix": ".jpg",
+            "dir": "./data/spacenet/val_crops/",
+            "file": "./data/spacenet/val_crops.txt",
+            "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 512
+            "crop_size": 650
         },
         "crop_size": 512,
         "augmentation": false,
@@ -62,9 +62,9 @@
         "lr_drop_epoch": "[60,90,110]"
     },
     "trainer": {
-        "total_epochs": 0,
+        "total_epochs": 150,
         "save_dir": "./save/",
         "iter_size": 1,
-        "test_freq": 1
+        "test_freq": 3
     }
 }
