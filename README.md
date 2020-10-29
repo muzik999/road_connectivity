@@ -57,18 +57,10 @@ spacenet3
 │   └───images
 ```
 
-*Download DeepGlobe Road dataset in the following tree structure.*
 ```
-deepglobe
-│
-└───train
-│   └───gt
-│   └───images
-```
-*Script to split and save in **'/data/spacenet'** and **'/data/deepglobe'**.*
+*Script to split and save in **'/data/spacenet'**.*
 ```
 bash split_data.sh /spacenet3/full /data/spacenet/ .png .png
-bash split_data.sh /deepglobe/train /data/deepglobe _sat.jpg _mask.png
 ```
 #### Create Crops
 
@@ -94,12 +86,11 @@ data/spacenet
 ```
 ```
 python create_crops.py --base_dir /data/spacenet/ --crop_size 650 --crop_overlap 215 --im_suffix .png --gt_suffix .png
-python create_crops.py --base_dir /data/deepglobe/ --crop_size 512 --crop_overlap 256 --im_suffix _sat.jpg --gt_suffix _mask.png
 ```
 ## Visualize Data
-* Road Orientation - [Notebook](https://github.com/anilbatra2185/road_connectivity/blob/master/visualize_tasks.ipynb)
-* Training Dataset - [Notebook](https://github.com/anilbatra2185/road_connectivity/blob/master/visualize_dataset.ipynb)
-* Linear Corruption (Connectivity Refinement) - [Notebook](https://github.com/anilbatra2185/road_connectivity/blob/master/visualize_dataset_corrupt.ipynb)
+* Road Orientation - [Notebook](/road_connectivity/blob/master/visualize_tasks.ipynb)
+* Training Dataset - [Notebook](/road_connectivity/blob/master/visualize_dataset.ipynb)
+* Linear Corruption (Connectivity Refinement) - [Notebook](/road_connectivity/blob/master/visualize_dataset_corrupt.ipynb)
 
 ## Training
 
@@ -108,8 +99,8 @@ Train Multi-Task learning framework to predict road segmentation and road orient
 __Training MTL Help__
 ```
 usage: train_mtl.py [-h] --config CONFIG
-                    --model_name {LinkNet34MTL,StackHourglassNetMTL}
-                    --dataset {deepglobe,spacenet}
+                    --model_name {StackHourglassNetMTL}
+                    --dataset {spacenet}
                     --exp EXP
                     [--resume RESUME]
                     [--model_kwargs MODEL_KWARGS]
@@ -118,14 +109,12 @@ usage: train_mtl.py [-h] --config CONFIG
 optional arguments:
   -h, --help            show this help message and exit
   --config CONFIG       config file path
-  --model_name 			{LinkNet34MTL,StackHourglassNetMTL}
-                        Name of Model = ['StackHourglassNetMTL',
-                        'LinkNet34MTL']
+  --model_name 			{StackHourglassNetMTL}
+                        Name of Model = ['StackHourglassNetMTL']
   --exp EXP             Experiment Name/Directory
   --resume RESUME       path to latest checkpoint (default: None)
-  --dataset 			{deepglobe,spacenet}
-                        select dataset name from ['deepglobe', 'spacenet'].
-                        (default: Spacenet)
+  --dataset 			{spacenet}
+                        select dataset name from ['spacenet'].
   --model_kwargs 		MODEL_KWARGS
                         parameters for the model
   --multi_scale_pred 	MULTI_SCALE_PRED
@@ -138,10 +127,6 @@ __Sample Usage__
 ```
 CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset spacenet --model_name "StackHourglassNetMTL" --exp dg_stak_mtl
 ```
-* Training with LinkNet34
-```
-CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset spacenet --model_name "LinkNet34MTL" --exp dg_L34_mtl --multi_scale_pred false
-```
 
 ## Evaluate APLS
 
@@ -153,6 +138,6 @@ CUDA_VISIBLE_DEVICES=0,1 python train_mtl.py --config config.json --dataset spac
 
 * Training with Linear Artifacts/Corruption (using LinkNe34 Architecture)
 ```
-CUDA_VISIBLE_DEVICES=0,1 python train_refine_pre.py --config config.json --dataset spacenet --model_name "LinkNet34" --exp spacenet_L34_pre_train_with_corruption --multi_scale_pred false
+CUDA_VISIBLE_DEVICES=0,1 python train_refine_pre.py --config config.json --dataset spacenet --model_name "StackHourglassNetMTL" --exp spacenet_L34_pre_train_with_corruption --multi_scale_pred false
 ```
 
