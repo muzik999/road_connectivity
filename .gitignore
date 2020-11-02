@@ -11,12 +11,14 @@ __pycache__/
 
 # Anmol folder
 save/
+data/
 
 # Anmol Images
 *.tif
 *.out
 *.tiff
 *.png
+*.sh
 
 # Distribution / packaging
 .Python
