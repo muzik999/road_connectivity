@@ -57,18 +57,9 @@ spacenet3
 │   └───images
 ```
 
-*Download DeepGlobe Road dataset in the following tree structure.*
-```
-deepglobe
-│
-└───train
-│   └───gt
-│   └───images
-```
-*Script to split and save in **'/data/spacenet'** and **'/data/deepglobe'**.*
+*Script to split and save in **'/data/spacenet'** .*
 ```
 bash split_data.sh /spacenet3/full /data/spacenet/ .png .png
-bash split_data.sh /deepglobe/train /data/deepglobe _sat.jpg _mask.png
 ```
 #### Create Crops
 
