@@ -202,6 +202,8 @@ class RoadDataset(data.Dataset):
             image = image * 2 - 1
         elif self.normalize_type == "Mean":
             image -= self.mean_bgr
+        elif self.normalize_type == "Normalize":
+            image = (image / 255.0)
         else:
             image = (image / 255.0) * 2 - 1
         
@@ -221,6 +223,58 @@ class RoadDataset(data.Dataset):
 
         return image, gt
 
+
+class StratfordDataset(RoadDataset):
+    def __init__(self, config, seed=7, multi_scale_pred=True, is_train=True):
+        super(StratfordDataset, self).__init__(
+            config, "stratford", seed, multi_scale_pred, is_train
+        )
+
+        # preprocess
+        self.threshold = self.config["thresh"]
+        print("Threshold is set to {} for {}".format(self.threshold, self.split))
+
+    def __getitem__(self, index):
+
+        image, gt = self.getRoadData(index)
+        c, h, w = image.shape
+
+        labels = []
+        vecmap_angles = []
+        if self.multi_scale_pred:
+            smoothness = [1, 2, 4]
+            scale = [4, 2, 1]
+        else:
+            smoothness = [4]
+            scale = [1]
+
+        for i, val in enumerate(scale):
+            if val != 1:
+                gt_ = cv2.resize(
+                    gt,
+                    (int(math.ceil(h / (val * 1.0))), int(math.ceil(w / (val * 1.0)))),
+                    interpolation=cv2.INTER_NEAREST,
+                )
+            else:
+                gt_ = gt
+
+            gt_orig = np.copy(gt_)
+            gt_orig /= 255.0
+            gt_orig[gt_orig < self.threshold] = 0
+            gt_orig[gt_orig >= self.threshold] = 1
+            labels.append(gt_orig)
+
+            keypoints = affinity_utils.getKeypoints(
+                gt_, thresh=0.98, smooth_dist=smoothness[i]
+            )
+            vecmap_angle = self.getOrientationGT(
+                keypoints,
+                height=int(math.ceil(h / (val * 1.0))),
+                width=int(math.ceil(w / (val * 1.0))),
+            )
+            vecmap_angles.append(vecmap_angle)
+
+        return image, labels, vecmap_angles
 
 class SpacenetDataset(RoadDataset):
     def __init__(self, config, seed=7, multi_scale_pred=True, is_train=True):

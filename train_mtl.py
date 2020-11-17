@@ -12,7 +12,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 from model.models import MODELS
-from road_dataset import DeepGlobeDataset, SpacenetDataset
+from road_dataset import DeepGlobeDataset, SpacenetDataset, StratfordDataset
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import MultiStepLR
 from utils.loss import CrossEntropyLoss2d, mIoULoss
@@ -20,7 +20,7 @@ from utils import util
 from utils import viz_util
 
 
-__dataset__ = {"spacenet": SpacenetDataset, "deepglobe": DeepGlobeDataset}
+__dataset__ = {"spacenet": SpacenetDataset, "deepglobe": DeepGlobeDataset, "stratford": StratfordDataset}
 
 
 parser = argparse.ArgumentParser()
@@ -135,9 +135,17 @@ best_accuracy = 0
 best_miou = 0
 start_epoch = 1
 total_epochs = config["trainer"]["total_epochs"]
-optimizer = optim.SGD(
-    model.parameters(), lr=config["optimizer"]["lr"], momentum=0.9, weight_decay=0.0005
-)
+
+if config["optimizer_type"] == 'sgd':
+    optimizer = optim.SGD(
+        model.parameters(), lr=config["optimizer"]["lr"], momentum=0.9, weight_decay=0.0005
+    )
+else:
+    optimizer = optim.Adam(
+        model.parameters(), lr=1e-4, weight_decay = 1e-3
+    )
+
+
 
 if args.resume is not None:
     print("Loading from existing FCN and copying weights to continue....")
@@ -156,7 +164,7 @@ viz_util.summary(model, print_arch=False)
 scheduler = MultiStepLR(
     optimizer,
     milestones=eval(config["optimizer"]["lr_drop_epoch"]),
-    gamma=config["optimizer"]["lr_step"],
+    # gamma=config["optimizer"]["lr_step"],
 )
 
 
@@ -310,7 +318,6 @@ def test(epoch):
             inputsBGR = Variable(
                 inputsBGR.float().cuda(), volatile=True, requires_grad=False
             )
-
             outputs, pred_vecmaps = model(inputsBGR)
             if args.multi_scale_pred:
                 loss1 = road_loss(outputs[0], util.to_variable(labels[0], True, False), True)
@@ -423,6 +430,7 @@ def test(epoch):
 
     return test_loss_iou / len(val_loader)
 
+print(config)
 
 for epoch in range(start_epoch, total_epochs + 1):
     start_time = datetime.now()

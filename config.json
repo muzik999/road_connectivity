@@ -22,6 +22,13 @@
             "gt_suffix": ".png",
             "crop_size": 256
         },
+        "stratford":{
+            "dir": "./data/stratford/crops_1200_1000/train_crops/",
+            "file": "./data/stratford/crops_1200_1000/train_crops.txt",
+            "image_suffix": ".png",
+            "gt_suffix": ".png",
+            "crop_size": 600
+        },
         "crop_size": 256,
         "augmentation": true,
         "mean" : "[70.95016901, 71.16398124, 71.30953645]",
@@ -46,7 +53,14 @@
             "gt_suffix": ".png",
             "crop_size": 650
         },
-        "crop_size": 512,
+        "stratford":{
+            "dir": "./data/stratford/crops_1200_1000/val_crops/",
+            "file": "./data/stratford/crops_1200_1000/val_crops.txt",
+            "image_suffix": ".png",
+            "gt_suffix": ".png",
+            "crop_size": 600
+        },
+        "crop_size": 650,
         "augmentation": false,
         "mean" : "[70.95016901, 71.16398124, 71.30953645]",
         "std" : "[34.00087859, 35.18201658, 36.40463264]",
@@ -56,7 +70,8 @@
         "angle_bin": 10
     },
     "optimizer": {
-        "lr": 0.01,
+        "lr": 1e-4,
+        "weight_decay" : 1e-3,
         "d_lr": 0.0001,
         "lr_step": 0.1,
         "lr_drop_epoch": "[60,90,110]"
@@ -65,6 +80,6 @@
         "total_epochs": 150,
         "save_dir": "./save/",
         "iter_size": 1,
-        "test_freq": 3
+        "test_freq": 5
     }
 }

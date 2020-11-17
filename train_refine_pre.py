@@ -77,15 +77,15 @@ util.ensure_dir(experiment_dir)
 train_file = "{}/{}_train_loss.txt".format(experiment_dir, args.dataset)
 test_file = "{}/{}_test_loss.txt".format(experiment_dir, args.dataset)
 
-train_loss_file = open(train_file, "w", 0)
-val_loss_file = open(test_file, "w", 0)
+train_loss_file = open(train_file, "w")#, 0)
+val_loss_file = open(test_file, "w")#, 0)
 
 ### Angle Metrics
 train_file_angle = "{}/{}_train_angle_loss.txt".format(experiment_dir, args.dataset)
 test_file_angle = "{}/{}_test_angle_loss.txt".format(experiment_dir, args.dataset)
 
-train_loss_angle_file = open(train_file_angle, "w", 0)
-val_loss_angle_file = open(test_file_angle, "w", 0)
+train_loss_angle_file = open(train_file_angle, "w")#, 0)
+val_loss_angle_file = open(test_file_angle, "w")#, 0)
 ################################################################################
 num_gpus = torch.cuda.device_count()
 
@@ -203,7 +203,7 @@ def train(epoch):
             loss1.backward()
             temp = Variable(torch.max(outputs.data, 1)[1].float()).unsqueeze(dim = 1)
 
-        train_loss_iou += loss1.data[0]
+        train_loss_iou += loss1.item()#[0]
 
         _, predicted = torch.max(outputs.data, 1)
 
@@ -258,100 +258,104 @@ def train(epoch):
 
 
 def test(epoch):
-    global best_accuracy
-    global best_miou
-    model.eval()
-    test_loss_iou = 0
-    test_loss_vec = 0
-    hist = np.zeros((config["task1_classes"], config["task1_classes"]))
-    crop_size = config["val_dataset"][args.dataset]["crop_size"]
-    for i, datas in enumerate(val_loader, 0):
-        inputs, labels, erased_label = data
-        batch_size = inputs.size(0)
+    with torch.no_grad():
 
-        inputs = Variable(inputs.float().cuda(), volatile=True, requires_grad=False)
-        erased_label = Variable(erased_label[-1].float().cuda(), volatile=True, requires_grad=False).unsqueeze(dim = 1)
-        temp = erased_label
+        global best_accuracy
+        global best_miou
+        model.eval()
+        test_loss_iou = 0
+        test_loss_vec = 0
+        hist = np.zeros((config["task1_classes"], config["task1_classes"]))
+        crop_size = config["val_dataset"][args.dataset]["crop_size"]
+        for i, data in enumerate(val_loader, 0):
+            inputs, labels, erased_label = data
+            batch_size = inputs.size(0)
 
-        for k in range(config['refinement']):
-            in_ = torch.cat((inputs, erased_label, temp), dim=1)
-            outputs = model(in_)
-            if args.multi_scale_pred:
-                loss1 = road_loss(outputs[0], labels[0].long().cuda(), False)
-                num_stacks = model.module.num_stacks if num_gpus > 1 else model.num_stacks
-                for idx in range(num_stacks - 1):
-                    loss1 += road_loss(outputs[idx + 1], labels[0].long().cuda(), False)
-                for idx, output in enumerate(outputs[-2:]):
-                    loss1 += road_loss(output, labels[idx + 1].long().cuda(), False)
+            inputs = Variable(inputs.float().cuda(), volatile=True, requires_grad=False)
+            erased_label = Variable(erased_label[-1].float().cuda(), volatile=True, requires_grad=False).unsqueeze(dim = 1)
+            temp = erased_label
 
-                outputs = outputs[-1]
-            else:
-                loss1 = road_loss(outputs, labels[-1].long().cuda(), False)
+            for k in range(config['refinement']):
 
-            temp = Variable(torch.max(outputs.data, 1)[1].float(), volatile=True, requires_grad=False).unsqueeze(dim = 1)
 
-        test_loss_iou += loss1.data[0]
+                in_ = torch.cat((inputs, erased_label, temp), dim=1)
+                outputs = model(in_)
+                if args.multi_scale_pred:
+                    loss1 = road_loss(outputs[0], labels[0].long().cuda(), False)
+                    num_stacks = model.module.num_stacks if num_gpus > 1 else model.num_stacks
+                    for idx in range(num_stacks - 1):
+                        loss1 += road_loss(outputs[idx + 1], labels[0].long().cuda(), False)
+                    for idx, output in enumerate(outputs[-2:]):
+                        loss1 += road_loss(output, labels[idx + 1].long().cuda(), False)
 
-        _, predicted = torch.max(outputs.data, 1)
+                    outputs = outputs[-1]
+                else:
+                    loss1 = road_loss(outputs, labels[-1].long().cuda(), False)
 
-        correctLabel = labels[-1].view(-1, crop_size, crop_size).long()
-        hist += util.fast_hist(
-            predicted.view(predicted.size(0), -1).cpu().numpy(),
-            correctLabel.view(correctLabel.size(0), -1).cpu().numpy(),
-            config["task1_classes"],
-        )
+                temp = Variable(torch.max(outputs.data, 1)[1].float(), volatile=True, requires_grad=False).unsqueeze(dim = 1)
 
-        p_accu, miou, road_iou, fwacc = util.performMetrics(
+            test_loss_iou += loss1.item()
+
+            _, predicted = torch.max(outputs.data, 1)
+
+            correctLabel = labels[-1].view(-1, crop_size, crop_size).long()
+            hist += util.fast_hist(
+                predicted.view(predicted.size(0), -1).cpu().numpy(),
+                correctLabel.view(correctLabel.size(0), -1).cpu().numpy(),
+                config["task1_classes"],
+            )
+
+            p_accu, miou, road_iou, fwacc = util.performMetrics(
+                train_loss_file,
+                val_loss_file,
+                epoch,
+                hist,
+                test_loss_iou / (i + 1),
+                0,
+                is_train=False,
+            )
+
+            viz_util.progress_bar(
+                i,
+                len(val_loader),
+                "Loss: %.6f | road miou: %.4f%%(%.4f%%)"
+                % (
+                    test_loss_iou / (i + 1),
+                    miou,
+                    road_iou,
+                ),
+            )
+
+            if i % 100 == 0 or i == len(val_loader) - 1:
+                images_path = "{}/images/".format(experiment_dir)
+                util.ensure_dir(images_path)
+                util.savePredictedProb(
+                    inputs.data.cpu(),
+                    labels[-1].cpu(),
+                    predicted.cpu(),
+                    F.softmax(outputs, dim=1).data.cpu()[:, 1, :, :],
+                    None,
+                    os.path.join(images_path, "validate_pair_{}_{}.png".format(epoch, i)),
+                    norm_type=config["val_dataset"]["normalize_type"],
+                )
+
+            del inputs, labels, predicted, outputs
+
+        accuracy, miou, road_iou, fwacc = util.performMetrics(
             train_loss_file,
             val_loss_file,
             epoch,
             hist,
-            test_loss_iou / (i + 1),
+            test_loss_iou / len(val_loader),
             0,
             is_train=False,
+            write=True,
         )
 
-        viz_util.progress_bar(
-            i,
-            len(val_loader),
-            "Loss: %.6f | road miou: %.4f%%(%.4f%%)"
-            % (
-                test_loss_iou / (i + 1),
-                miou,
-                road_iou,
-            ),
-        )
-
-        if i % 100 == 0 or i == len(val_loader) - 1:
-            images_path = "{}/images/".format(experiment_dir)
-            util.ensure_dir(images_path)
-            util.savePredictedProb(
-                inputsBGR.data.cpu(),
-                labels[-1].cpu(),
-                predicted.cpu(),
-                F.softmax(outputs, dim=1).data.cpu()[:, 1, :, :],
-                None,
-                os.path.join(images_path, "validate_pair_{}_{}.png".format(epoch, i)),
-                norm_type=config["val_dataset"]["normalize_type"],
-            )
-
-        del inputsBGR, labels, predicted, outputs
-
-    accuracy, miou, road_iou, fwacc = util.performMetrics(
-        train_loss_file,
-        val_loss_file,
-        epoch,
-        hist,
-        test_loss_iou / len(val_loader),
-        0,
-        is_train=False,
-        write=True,
-    )
-
-    if miou > best_miou:
-        best_accuracy = accuracy
-        best_miou = miou
-        util.save_checkpoint(epoch, test_loss_iou / len(val_loader), model, optimizer, best_accuracy, best_miou, config, experiment_dir)
+        if miou > best_miou:
+            best_accuracy = accuracy
+            best_miou = miou
+            util.save_checkpoint(epoch, test_loss_iou / len(val_loader), model, optimizer, best_accuracy, best_miou, config, experiment_dir)
 
     return test_loss_iou / len(val_loader)
 
@@ -360,10 +364,11 @@ for epoch in range(start_epoch, total_epochs + 1):
     start_time = datetime.now()
     scheduler.step(epoch)
     print("\nTraining Epoch: %d" % epoch)
-    train(epoch)
-    if epoch % config["trainer"]["test_freq"] == 0:
-        print("\nTesting Epoch: %d" % epoch)
-        val_loss = test(epoch)
+    test(epoch)
+    # train(epoch)
+    # if epoch % config["trainer"]["test_freq"] == 0:
+    #     print("\nTesting Epoch: %d" % epoch)
+    #     val_loss = test(epoch)
 
     end_time = datetime.now()
     print("Time Elapsed for epoch => {1}".format(epoch, end_time - start_time))

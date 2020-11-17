@@ -224,6 +224,8 @@ def savePredictedProb(
             real_ = real_ + mean_bgr
         elif norm_type == "Std":
             real_ = (real_ * deviation_bgr) + mean_bgr
+        elif norm_type == "Normalize":
+            real_ = real_* 255.0
 
         real_ = np.asarray(real_, dtype=np.uint8)
         gt_ = gt[idx].numpy() * 255.0
