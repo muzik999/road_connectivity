@@ -1,11 +1,12 @@
 {
     "seed": 7,
+    "optimizer_type": "sgd",
     "task1_classes": 2,
     "task2_classes": 37,
     "task1_weight": 1,
     "task2_weight": 1,
-    "train_batch_size": 8,
-    "val_batch_size": 2,
+    "train_batch_size": 16,
+    "val_batch_size": 4,
     "refinement":3,
     "train_dataset": {
         "spacenet":{
@@ -13,23 +14,26 @@
             "file": "./data/spacenet/train_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 256
+            "crop_size": 256,
+            "reshape": false
         },
         "deepglobe":{
             "dir": "./data/spacenet/train_crops/",
             "file": "./data/spacenet/train_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 256
+            "crop_size": 256,
+            "reshape": false
         },
         "stratford":{
-            "dir": "./data/stratford/crops_1200_1000/train_crops/",
-            "file": "./data/stratford/crops_1200_1000/train_crops.txt",
+            "dir": "./data/stratford/crops_1700_1500/train_crops/",
+            "file": "./data/stratford/crops_1700_1500/train_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 512
+            "crop_size": 1300,
+            "reshape_size": 384,
+            "reshape": true
         },
-        "crop_size": 256,
         "augmentation": true,
         "mean" : "[70.95016901, 71.16398124, 71.30953645]",
         "std" : "[34.00087859, 35.18201658, 36.40463264]",
@@ -44,23 +48,26 @@
             "file": "./data/spacenet/val_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 650
+            "crop_size": 650,
+            "reshape": false
         },
         "deepglobe":{
             "dir": "./data/spacenet/val_crops/",
             "file": "./data/spacenet/val_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 650
+            "crop_size": 650,
+            "reshape": false
         },
         "stratford":{
-            "dir": "./data/stratford/crops_1200_1000/val_crops/",
-            "file": "./data/stratford/crops_1200_1000/val_crops.txt",
+            "dir": "./data/stratford/crops_1700_1500/val_crops/",
+            "file": "./data/stratford/crops_1700_1500/val_crops.txt",
             "image_suffix": ".png",
             "gt_suffix": ".png",
-            "crop_size": 512
+            "crop_size": 512,
+            "reshape_size": 512,
+            "reshape": true
         },
-        "crop_size": 650,
         "augmentation": false,
         "mean" : "[70.95016901, 71.16398124, 71.30953645]",
         "std" : "[34.00087859, 35.18201658, 36.40463264]",
@@ -74,12 +81,12 @@
         "weight_decay" : 1e-3,
         "d_lr": 0.0001,
         "lr_step": 0.1,
-        "lr_drop_epoch": "[60,90,110]"
+        "lr_drop_epoch": "[100,150,300]"
     },
     "trainer": {
-        "total_epochs": 150,
+        "total_epochs": 1500,
         "save_dir": "./save/",
         "iter_size": 1,
-        "test_freq": 5
+        "test_freq": 10
     }
 }

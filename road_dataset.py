@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from data_utils import affinity_utils
 from torch.utils import data
-
+from torchvision import transforms
 
 class RoadDataset(data.Dataset):
     def __init__(
@@ -36,6 +36,10 @@ class RoadDataset(data.Dataset):
         self.crop_size = [
             self.config[dataset_name]["crop_size"],
             self.config[dataset_name]["crop_size"],
+        ]
+        self.reshape_size = [
+            self.config[dataset_name]["reshape_size"],
+            self.config[dataset_name]["reshape_size"],
         ]
         self.multi_scale_pred = multi_scale_pred
 
@@ -78,6 +82,20 @@ class RoadDataset(data.Dataset):
 
         if self.split == "train":
             image, gt = self.random_crop(image, gt, self.crop_size)
+            
+            if self.reshape:
+                image = cv2.resize(
+                    image,
+                    (self.reshape_size[0], self.reshape_size[1]),
+                    interpolation=cv2.INTER_LINEAR,
+                )
+                gt = cv2.resize(
+                    gt,
+                    (self.reshape_size[0], self.reshape_size[1]),
+                    interpolation=cv2.INTER_LINEAR,
+                )
+                # print('resized')
+
         else:
             image = cv2.resize(
                 image,

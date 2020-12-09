@@ -1,0 +1,20 @@
+{
+  "mean": [
+    70.95016901,
+    71.16398124,
+    71.30953645
+  ],
+  "std": [
+    34.00087859,
+    35.18201658,
+    36.40463264
+  ],
+  "normalize_type": "Normalize",
+  "task1_classes": 2,
+  "task2_classes": 37,
+  "model_name": "StackHourglassNetMTL",
+  "model_path": "./save/dg_stak_mtl_24hr_stratford/model_best.pth.tar",
+  "path_to_images": "./data/stratford/crops_1700_1500/test_crops/images",
+  "reshape_size": 512,
+  "mode": "test_"
+}

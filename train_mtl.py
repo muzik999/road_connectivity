@@ -20,6 +20,7 @@ from utils import util
 from utils import viz_util
 
 
+
 __dataset__ = {"spacenet": SpacenetDataset, "deepglobe": DeepGlobeDataset, "stratford": StratfordDataset}
 
 
@@ -140,10 +141,12 @@ if config["optimizer_type"] == 'sgd':
     optimizer = optim.SGD(
         model.parameters(), lr=config["optimizer"]["lr"], momentum=0.9, weight_decay=0.0005
     )
-else:
+elif config["optimizer_type"] == 'adam':
     optimizer = optim.Adam(
-        model.parameters(), lr=1e-4, weight_decay = 1e-3
+        model.parameters(), lr=1e-4, weight_decay = config["optimizer"]["weight_decay"]
     )
+else:
+    print('Please choose a valid optimizer -> adam or sgd in config.json')
 
 
 
@@ -196,7 +199,14 @@ def train(epoch):
     optimizer.zero_grad()
     hist = np.zeros((config["task1_classes"], config["task1_classes"]))
     hist_angles = np.zeros((config["task2_classes"], config["task2_classes"]))
-    crop_size = config["train_dataset"][args.dataset]["crop_size"]
+    
+    # adjust reshaped image from stratford dataset.
+    if config["train_dataset"][args.dataset]["reshape"]:  
+        print('ERROR')             # REMOVE
+        crop_size = config["train_dataset"][args.dataset]["reshape_size"]
+    else:
+        crop_size = config["train_dataset"][args.dataset]["crop_size"]  
+
     for i, data in enumerate(train_loader, 0):
         inputsBGR, labels, vecmap_angles = data
         inputsBGR = Variable(inputsBGR.float().cuda())
@@ -314,6 +324,12 @@ def test(epoch):
         hist = np.zeros((config["task1_classes"], config["task1_classes"]))
         hist_angles = np.zeros((config["task2_classes"], config["task2_classes"]))
         crop_size = config["val_dataset"][args.dataset]["crop_size"]
+        # adjust reshaped image from stratford dataset.
+        # if config["train_dataset"][args.dataset]["reshape"]:  
+        #     crop_size = config["train_dataset"][args.dataset]["reshape_size"]
+        # else:
+        #     crop_size = config["train_dataset"][args.dataset]["crop_size"] 
+
         for i, (inputsBGR, labels, vecmap_angles) in enumerate(val_loader, 0):
             inputsBGR = Variable(
                 inputsBGR.float().cuda(), volatile=True, requires_grad=False
